@@ -297,7 +297,6 @@ app.patch('/api/v1/pokemon/:id', asyncWrapper(async (req, res) => {
 app.get('/report', async (req, res) => {
   console.log("Report requested");
   var decoded = jwt_decode(req.header('auth-token-access'))
-  console.log(decoded);
   var username = decoded.user.username;
   userId = await userModel.findOne({ "username": username }).select('_id')
   if(req.query.id === "1"){
@@ -434,28 +433,33 @@ app.get('/report', async (req, res) => {
     var TopUsersByEndpointTable = await Logger.aggregate([
       {
         $group: {
-          _id: { url: '$url', userId: '$userId'},
-          count: { $sum: 1}
+          _id: { url: '$url', userId: '$userId' },
+          count: { $sum: 1 }
         }
       },
-      { $sort: {'_id.url': 1, count: -1}},
+      { $sort: { '_id.url': 1, count: -1 } },
       {
         $group: {
           _id: '$_id.url',
-          topUsers: { $push: { userId: '$_id.userId', count: '$count'}}
+          topUsers: { $push: { userId: '$_id.userId', count: '$count' } }
         }
       }
-    ]).lookup({
-      from: 'pokeusers',
-      localField: 'topUsers.userId',
-      foreignField: '_id',
-      as: 'tpUsers',
-    }).project({
-      'tpUsers.username': 1,
-      'tpUsers.email': 1,
-      'tpUsers.role': 1,
-      'topUsers.count': 1
-    })
+    ])
+      .lookup({
+        from: 'pokeusers',
+        localField: 'topUsers.userId',
+        foreignField: '_id',
+        as: 'tpUsers',
+      })
+      .match({
+        tpUsers: { $ne: [] }
+      })
+      .project({
+        'tpUsers.username': 1,
+        'tpUsers.email': 1,
+        'tpUsers.role': 1,
+        'topUsers.count': 1
+      });
 
     const outputTopUsersByEndpointTable = TopUsersByEndpointTable.map((data) => {
       return {
