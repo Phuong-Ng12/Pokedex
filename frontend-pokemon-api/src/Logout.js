@@ -5,7 +5,7 @@ function Logout({ accessToken, setAccessToken, setRefreshToken, setUser, setUser
     useEffect(() => {
         async function fetchLogout() {
             const res = await axios.get(
-                "http://localhost:5000/logout",
+                "http://ec2-52-91-210-207.compute-1.amazonaws.com:5000/logout",
                 {
                     headers: {
                         'auth-token-access': accessToken

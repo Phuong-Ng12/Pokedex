@@ -10,7 +10,7 @@ function Register({onFormSwitch}) {
 
     const onClickHandle = async (e) => {
         e.preventDefault()
-        const res = await axios.post('http://localhost:5000/register', {
+        const res = await axios.post('http://ec2-52-91-210-207.compute-1.amazonaws.com:5000/register', {
             username: username,
             password: password,
             email: email

@@ -20,7 +20,7 @@ function Login({onFormSwitch}) {
     const onClickHandle = async (e) => {
         e.preventDefault()
         try {
-            const res = await axios.post('http://localhost:5000/login', {
+            const res = await axios.post('http://ec2-52-91-210-207.compute-1.amazonaws.com:5000/login', {
                 username: username,
                 password: password
             })

@@ -12,7 +12,7 @@ const morgan = require("morgan")
 const cors = require("cors")
 const bodyParser = require('body-parser')
 const jwt_decode = require('jwt-decode');
-
+const path = require("path");
 var userId = new mongoose.Types.ObjectId(1)
 
 const {
@@ -30,7 +30,7 @@ const app = express()
 var pokeModel = null;
 
 const start = asyncWrapper(async () => {
-  await connectDB({ "drop": true });
+  await connectDB({ "drop": false });
   const pokeSchema = await getTypes();
   pokeModel = await populatePokemons(pokeSchema);
   pokeModel = mongoose.model('pokemons', pokeSchema);
@@ -97,6 +97,11 @@ app.use( async (req, res, next) => {
   });
 
   next();
+});
+
+app.use(express.static(path.join(__dirname, "/frontend-pokemon-api/build")));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname + "/frontend-pokemon-api/build/index.html"));
 });
 
 app.use(cors())
@@ -292,10 +297,10 @@ app.patch('/api/v1/pokemon/:id', asyncWrapper(async (req, res) => {
 app.get('/report', async (req, res) => {
   console.log("Report requested");
   var decoded = jwt_decode(req.header('auth-token-access'))
+  console.log(decoded);
   var username = decoded.user.username;
   userId = await userModel.findOne({ "username": username }).select('_id')
-
-  if(req.query.id === "1"){
+ 
     //Unique API users over a period of time
     var UniqueAPIUsersOverPeriodOfTime = await Logger.aggregate([
       {
