@@ -411,24 +411,30 @@ app.get('/report', async (req, res) => {
       {
         $limit: 10
       }
-    ]) 
+    ])
       .then(async (logs) => {
         // Find users from PokeUser collection
-        const users = await userModel.find({ _id: { $in: logs.map((log) => log._id) } }).select('username email role');
+        const userIds = logs.map((log) => log._id);
+        const users = await pokeusers.find({ _id: { $in: userIds } }).select('username email role');
         TopAPIUsersOverPeriodOfTime = logs.map((log) => {
           const user = users.find((u) => u._id.equals(log._id));
-          return {
-            username: user.username,
-            email: user.email,
-            role: user.role,
-            urls: log.urls,
-          };
-        });
+          if (user) {
+            return {
+              username: user.username,
+              email: user.email,
+              role: user.role,
+              urls: log.urls,
+            };
+          } else {
+            return null;
+          }
+        }).filter((log) => log !== null);
         var outputTopAPIUsersOverPeriodOfTime = [];
         outputTopAPIUsersOverPeriodOfTime = TopAPIUsersOverPeriodOfTime.flatMap(({ username, email, role, urls }) =>
-        urls.map(({ url, date, count }) => ({ username, email, role, url, date, count })));
-        res.send(outputTopAPIUsersOverPeriodOfTime)
-      })
+          urls.map(({ url, date, count }) => ({ username, email, role, url, date, count }))
+        );
+        res.send(outputTopAPIUsersOverPeriodOfTime);
+      });
   } else if(req.query.id === "3"){
     var TopUsersByEndpointTable = await Logger.aggregate([
       {
