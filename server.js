@@ -300,7 +300,7 @@ app.get('/report', async (req, res) => {
   console.log(decoded);
   var username = decoded.user.username;
   userId = await userModel.findOne({ "username": username }).select('_id')
- 
+  if(req.query.id === "1"){
     //Unique API users over a period of time
     var UniqueAPIUsersOverPeriodOfTime = await Logger.aggregate([
       {
