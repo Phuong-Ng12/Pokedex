@@ -320,6 +320,13 @@ app.get('/report', async (req, res) => {
         }
       },
       {
+        $match: {
+          user: {
+            $ne: []
+          }
+        }
+      },
+      {
         $group: {
           _id: "$userId",
           user: {
