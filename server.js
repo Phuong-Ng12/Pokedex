@@ -416,24 +416,17 @@ app.get('/report', async (req, res) => {
         from: "pokeusers",
         localField: "_id",
         foreignField: "_id",
-        as: "users"
+        as: "user"
       })
-      .match({
-        users: { $ne: [] }
+      .unwind("$user")
+      .project({
+        username: "$user.username",
+        email: "$user.email",
+        role: "$user.role",
+        urls: 1
       })
       .then((logs) => {
-        const users = logs[0].users; // Extract users array from logs
-        TopAPIUsersOverPeriodOfTime = logs.map((log) => {
-          const user = users.find((u) => u._id.equals(log._id));
-          return {
-            username: user.username,
-            email: user.email,
-            role: user.role,
-            urls: log.urls,
-          };
-        });
-        var outputTopAPIUsersOverPeriodOfTime = [];
-        outputTopAPIUsersOverPeriodOfTime = TopAPIUsersOverPeriodOfTime.flatMap(({ username, email, role, urls }) =>
+        var outputTopAPIUsersOverPeriodOfTime = logs.flatMap(({ username, email, role, urls }) =>
           urls.map(({ url, date, count }) => ({ username, email, role, url, date, count }))
         );
         res.send(outputTopAPIUsersOverPeriodOfTime);
