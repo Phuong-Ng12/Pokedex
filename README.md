@@ -13,7 +13,14 @@ For Regular user:
 
 ## Demo Photos:
 
+Admin Dashboard
 ![Admin Dashboard](./demo-img/admin-dashboard.png)
+
+Admin Pokedex
 ![Admin Pokedex](./demo-img/admin-user-pokedex.png)
+
+Regular User Pokedex
 ![Regular User Pokedex](./demo-img/regular-user-pokedex.png)
+
+Filtered Pokemons and Details
 ![Filtered Pokemons and Details](./demo-img/filtered-pokemons-and-details.png)
