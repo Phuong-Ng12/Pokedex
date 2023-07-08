@@ -412,23 +412,26 @@ app.get('/report', async (req, res) => {
         $limit: 10
       }
     ])
-      .then(async (logs) => {
-        // Find users from PokeUser collection
-        const userIds = logs.map((log) => log._id);
-        const users = await pokeusers.find({ _id: { $in: userIds } }).select('username email role');
+      .lookup({
+        from: "pokeusers",
+        localField: "_id",
+        foreignField: "_id",
+        as: "users"
+      })
+      .match({
+        users: { $ne: [] }
+      })
+      .then((logs) => {
+        const users = logs[0].users; // Extract users array from logs
         TopAPIUsersOverPeriodOfTime = logs.map((log) => {
           const user = users.find((u) => u._id.equals(log._id));
-          if (user) {
-            return {
-              username: user.username,
-              email: user.email,
-              role: user.role,
-              urls: log.urls,
-            };
-          } else {
-            return null;
-          }
-        }).filter((log) => log !== null);
+          return {
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            urls: log.urls,
+          };
+        });
         var outputTopAPIUsersOverPeriodOfTime = [];
         outputTopAPIUsersOverPeriodOfTime = TopAPIUsersOverPeriodOfTime.flatMap(({ username, email, role, urls }) =>
           urls.map(({ url, date, count }) => ({ username, email, role, url, date, count }))
